@@ -193,7 +193,6 @@ int main(int, char**)
 				manufacturer = track[trk][ptr++];
 				std::cout << "System Exclusive. manufacturer: " <<
 						std::setw(2) << manufacturer << std::endl;
-				std::string name;
 			}break;
 
 			case 0xf2:{ //Song Position Pointer.
