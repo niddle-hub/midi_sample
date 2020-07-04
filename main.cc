@@ -191,10 +191,9 @@ int main(int, char**)
 			case 0xf0:{
 				unsigned manufacturer, message;
 				manufacturer = track[trk][ptr++];
-				message = track[trk][ptr++];
 				std::cout << "System Exclusive. manufacturer: " <<
-						std::setw(2) << manufacturer << " message:  " <<
-						std::setw(2) << message << std::endl;
+						std::setw(2) << manufacturer << std::endl;
+				std::string name;
 			}break;
 
 			case 0xf2:{ //Song Position Pointer.
