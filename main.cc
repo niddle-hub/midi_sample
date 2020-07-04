@@ -77,7 +77,7 @@ int main(int, char**)
 	drv.set_master_volume(4000);
 
 	std::fstream file;
-	file.open("minecraft.mid", std::ios::in | std::ios::binary);
+	file.open("pirates.mid", std::ios::in | std::ios::binary);
 
 	MThdHeader mthd;
 	file.read(reinterpret_cast<char*>(&mthd), sizeof(mthd));
@@ -149,8 +149,13 @@ int main(int, char**)
 				fg->key_on();
 			}break;
 
-			case 0xa0 ... 0xaf:{
-
+			case 0xa0 ... 0xaf:{ //Polyphonic Key Pressure (Aftertouch).
+				unsigned knum, pvalue;
+				knum = track[trk][ptr++];
+				pvalue = track[trk][ptr++];
+				std::cout << "key (note) number: " <<
+						std::setw(2) << knum << " pressure value: " <<
+						std::setw(2) << pvalue << std::endl;
 			}break;
 
 			case 0xb0 ... 0xbf:{
@@ -183,15 +188,55 @@ int main(int, char**)
 						std::setw(2) << pitchWheel << std::endl;
 			}break;
 
-			case 0xf0:break; //FIXME
-			case 0xf2:break; //FIXME
-			case 0xf3:break; //FIXME
-			case 0xf6:break; //FIXME
-			case 0xf8:break; //FIXME
-			case 0xfa:break; //FIXME
-			case 0xfb:break; //FIXME
-			case 0xfc:break; //FIXME
-			case 0xfe:break; //FIXME
+			case 0xf0:{
+				unsigned manufacturer, message;
+				manufacturer = track[trk][ptr++];
+				message = track[trk][ptr++];
+				std::cout << "System Exclusive. manufacturer: " <<
+						std::setw(2) << manufacturer << " message:  " <<
+						std::setw(2) << message << std::endl;
+			}break;
+
+			case 0xf2:{ //Song Position Pointer.
+				unsigned songpp;
+				songpp = track[trk][ptr++];
+				std::cout << "Song Position Pointer: " <<
+						std::setw(2) << songpp << std::endl;
+			}break;
+
+			case 0xf3:{ //Song Select
+				unsigned songselect;
+				songselect = track[trk][ptr++];
+				std::cout << "song select: " <<
+						std::setw(2) << songselect << std::endl;
+			}break;
+
+			case 0xf6:{ //Tune Request
+				std::cout << "Tune Request." << std::endl;
+			}break;
+
+			case 0xf7:{
+				std::cout << "End of exclusive" << std::endl;
+			}break;
+
+			case 0xf8:{
+				std::cout << "Timing Clock. Sent 24 times per quarter note when synchronisation is required." << std::endl;
+			}break;
+
+			case 0xfa:{
+				std::cout << "Start the current sequence playing." << std::endl;
+			}break;
+
+			case 0xfb:{
+				std::cout << "Continue at the point the sequence was Stopped." << std::endl;
+			}break;
+
+			case 0xfc:{
+				std::cout << "Stop the current sequence." << std::endl;
+			}break;
+			case 0xfe:{
+				std::cout << "Active Sensing." << std::endl;
+			}break;
 
 			case 0xff:{
 				unsigned meta_type = track[trk][ptr++];
@@ -205,8 +250,19 @@ int main(int, char**)
 						std::dec << seqnum << std::hex << std::endl;
 					}break;
 
-					case 0x01:break; //FIXME
-					case 0x02:break; //FIXME
+					case 0x01:{
+						std::string text;
+						while (meta_len --)
+							text += char(track[trk][ptr++]);
+						std::cout << "TEXT: " << text << std::endl;
+					}break;
+
+					case 0x02:{
+						std::string cprt;
+						while (meta_len --)
+							cprt += char(track[trk][ptr++]);
+						std::cout << " Copyright Notice: " << cprt << std::endl;
+					}break;
 
 					case 0x03:{
 						std::string name;
