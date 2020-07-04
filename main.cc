@@ -77,7 +77,7 @@ int main(int, char**)
 	drv.set_master_volume(4000);
 
 	std::fstream file;
-	file.open("pirates.mid", std::ios::in | std::ios::binary);
+	file.open("sysex.mid", std::ios::in | std::ios::binary);
 
 	MThdHeader mthd;
 	file.read(reinterpret_cast<char*>(&mthd), sizeof(mthd));
@@ -189,33 +189,40 @@ int main(int, char**)
 			}break;
 
 			case 0xf0:{
-				unsigned manufacturer, message;
-				manufacturer = track[trk][ptr++];
+				unsigned manufacturerID;
+				manufacturerID = track[trk][ptr++];
+				if(manufacturerID==0){
+					manufacturerID = (((manufacturerID << 8) | track[trk][ptr++]) << 8  | track[trk][ptr++]);
+				}
 				std::cout << "System Exclusive. manufacturer: " <<
-						std::setw(2) << manufacturer << std::endl;
+						std::setw(2) << manufacturerID << " ID " << track[trk][ptr++]* 0x1U << std::endl;
+
+				while(event_type!=0xf7)
+					event_type = track[trk][ptr++];
 			}break;
 
-			case 0xf2:{ //Song Position Pointer.
-				unsigned songpp;
-				songpp = track[trk][ptr++];
-				std::cout << "Song Position Pointer: " <<
-						std::setw(2) << songpp << std::endl;
-			}break;
-
-			case 0xf3:{ //Song Select
-				unsigned songselect;
-				songselect = track[trk][ptr++];
-				std::cout << "song select: " <<
-						std::setw(2) << songselect << std::endl;
-			}break;
-
-			case 0xf6:{ //Tune Request
-				std::cout << "Tune Request." << std::endl;
-			}break;
+//			case 0xf2:{ //Song Position Pointer.
+//				unsigned songpp;
+//				songpp = track[trk][ptr++];
+//				std::cout << "Song Position Pointer: " <<
+//						std::setw(2) << songpp << std::endl;
+//			}break;
+//
+//			case 0xf3:{ //Song Select
+//				unsigned songselect;
+//				songselect = track[trk][ptr++];
+//				std::cout << "song select: " <<
+//						std::setw(2) << songselect << std::endl;
+//			}break;
+//
+//			case 0xf6:{ //Tune Request
+//				std::cout << "Tune Request." << std::endl;
+//			}break;
 
 			case 0xf7:{
 				std::cout << "End of exclusive" << std::endl;
 			}break;
+
 
 			case 0xf8:{
 				std::cout << "Timing Clock. Sent 24 times per quarter note when synchronisation is required." << std::endl;
