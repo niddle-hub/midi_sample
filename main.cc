@@ -199,6 +199,7 @@ int main(int, char**)
 
 				while(event_type!=0xf7)
 					event_type = track[trk][ptr++];
+				std::cout << "End of exclusive" << std::endl;
 			}break;
 
 //			case 0xf2:{ //Song Position Pointer.
@@ -219,10 +220,9 @@ int main(int, char**)
 //				std::cout << "Tune Request." << std::endl;
 //			}break;
 
-			case 0xf7:{
-				std::cout << "End of exclusive" << std::endl;
-			}break;
-
+//			case 0xf7:{
+//				std::cout << "End of exclusive" << std::endl;
+//			}break;
 
 			case 0xf8:{
 				std::cout << "Timing Clock. Sent 24 times per quarter note when synchronisation is required." << std::endl;
