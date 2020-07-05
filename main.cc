@@ -202,27 +202,24 @@ int main(int, char**)
 				std::cout << "End of exclusive" << std::endl;
 			}break;
 
-//			case 0xf2:{ //Song Position Pointer.
-//				unsigned songpp;
-//				songpp = track[trk][ptr++];
-//				std::cout << "Song Position Pointer: " <<
-//						std::setw(2) << songpp << std::endl;
-//			}break;
-//
-//			case 0xf3:{ //Song Select
-//				unsigned songselect;
-//				songselect = track[trk][ptr++];
-//				std::cout << "song select: " <<
-//						std::setw(2) << songselect << std::endl;
-//			}break;
-//
-//			case 0xf6:{ //Tune Request
-//				std::cout << "Tune Request." << std::endl;
-//			}break;
+			case 0xf2:{ //Song Position Pointer.
+				unsigned songpp, msb;
+				songpp = track[trk][ptr++];
+				msb = track[trk][ptr++];
+				std::cout << "Song Position Pointer LSB: " <<
+						std::setw(2) << songpp << " MSB: " << msb << std::endl;
+			}break;
 
-//			case 0xf7:{
-//				std::cout << "End of exclusive" << std::endl;
-//			}break;
+			case 0xf3:{ //Song Select
+				unsigned songselect;
+				songselect = track[trk][ptr++];
+				std::cout << "Номер песни: " <<
+						std::setw(2) << songselect << std::endl;
+			}break;
+
+			case 0xf6:{ //Tune Request
+				std::cout << "Tune Request." << std::endl;
+			}break;
 
 			case 0xf8:{
 				std::cout << "Timing Clock. Sent 24 times per quarter note when synchronisation is required." << std::endl;
@@ -239,6 +236,7 @@ int main(int, char**)
 			case 0xfc:{
 				std::cout << "Stop the current sequence." << std::endl;
 			}break;
+
 			case 0xfe:{
 				std::cout << "Active Sensing." << std::endl;
 			}break;
@@ -276,12 +274,58 @@ int main(int, char**)
 						std::cout << "Имя дорожки: " << name << std::endl;
 					}break;
 
+					case 0x04:{
+						std::string InstrumentName;
+						while (meta_len --)
+							InstrumentName += char(track[trk][ptr++]);
+						std::cout << "Instrument Name: " << InstrumentName << std::endl;
+					}break;
+
+					case 0x05:{
+						std::string lyric;
+						while (meta_len --)
+							lyric += char(track[trk][ptr++]);
+						std::cout << "lyric: " << lyric << std::endl;
+					}break;
+
+					case 0x06:{
+						std::string Marker;
+						while (meta_len --)
+							Marker += char(track[trk][ptr++]);
+						std::cout << "Marker: " << Marker << std::endl;
+					}break;
+
+					case 0x07:{
+						std::string cuepoint;
+						while (meta_len --)
+							cuepoint += char(track[trk][ptr++]);
+						std::cout << "Cue Point: " << cuepoint << std::endl;
+					}break;
+
+					case 0x20:{
+						unsigned prefix;
+						prefix = track[trk][ptr++];
+						std::cout << "MIDI Channel Prefix: " << prefix << std::endl;
+					}break;
+
 					case 0x51:{
 						unsigned temp1 = track[trk][ptr++];
 						unsigned temp2 = track[trk][ptr++];
 						unsigned temp3 = track[trk][ptr++];
 						int result = (((temp1 << 8) |temp2) << 8 | temp3);
 						std::cout << "Set Tempo: " << result << " микросекунд" << std::endl;
+					}break;
+
+					case 0x54:{
+						unsigned hr = track[trk][ptr++];
+	 					unsigned mn = track[trk][ptr++];
+	 					unsigned se = track[trk][ptr++];
+	 					unsigned fr = track[trk][ptr++];
+	 					std::cout << "SMPTE Offset hr:" << hr
+	 							<< " mn: " << mn
+								<< " se: " << se
+								<< " fr: " << fr << std::endl;
+
 					}break;
 
 					case 0x58:{
@@ -295,10 +339,25 @@ int main(int, char**)
 
 					}break;
 
+					case 0x59:{
+						unsigned sf = track[trk][ptr++];
+						unsigned me = track[trk][ptr++];
+						std::cout << "Key Signature sf: " << sf << " me: " << me << std::endl;
+					}break;
+
 					case 0x2f:
 						std::cout << "---- Конец Дорожки ----" << std::endl;
 						return 0;
 					break;
+
+					case 0x7f:{
+						unsigned ssmeID;
+						ssmeID = track[trk][ptr++];
+						if(ssmeID==0){
+							ssmeID = (((ssmeID << 8) | track[trk][ptr++]) << 8  | track[trk][ptr++]);
+						}
+						std::cout << "s s m e ID: " << ssmeID << std::endl;
+					}break;
 
 					default:
 						std::cout << "Незамеченное мета событие " <<
