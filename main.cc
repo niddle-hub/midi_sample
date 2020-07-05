@@ -77,7 +77,7 @@ int main(int, char**)
 	drv.set_master_volume(4000);
 
 	std::fstream file;
-	file.open("sysex.mid", std::ios::in | std::ios::binary);
+	file.open("nokia.mid", std::ios::in | std::ios::binary);
 
 	MThdHeader mthd;
 	file.read(reinterpret_cast<char*>(&mthd), sizeof(mthd));
@@ -351,12 +351,16 @@ int main(int, char**)
 					break;
 
 					case 0x7f:{
-						unsigned ssmeID;
+						unsigned ssmeID, datalen, data;
 						ssmeID = track[trk][ptr++];
 						if(ssmeID==0){
 							ssmeID = (((ssmeID << 8) | track[trk][ptr++]) << 8  | track[trk][ptr++]);
-						}
-						std::cout << "s s m e ID: " << ssmeID << std::endl;
+							datalen = meta_len - 3;
+						}else
+							datalen = meta_len - 1;
+						while (datalen--)
+							data += char(track[trk][ptr++]);
+						std::cout << "ssme_ID: " << ssmeID << " Data: " << data << std::endl;
 					}break;
 
 					default:
